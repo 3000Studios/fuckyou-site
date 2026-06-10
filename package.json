@@ -1,0 +1,11 @@
+{
+  "name": "fuckyou-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "echo No lint configured yet",
+    "typecheck": "echo No typecheck configured yet",
+    "build": "echo Static scaffold ready"
+  }
+}
