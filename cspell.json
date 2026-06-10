@@ -1,0 +1,41 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    ".wrangler/**",
+    ".firebase/**",
+    "coverage/**",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock"
+  ],
+  "words": [
+    "AdSense",
+    "AppCheck",
+    "Cloudflare",
+    "Firestore",
+    "Firebase",
+    "Gemini",
+    "OpenCode",
+    "Turnstile",
+    "Wrangler",
+    "voicetowebsite",
+    "getnexa",
+    "swain",
+    "calistique",
+    "campdream",
+    "tmack",
+    "cajun",
+    "searchconsole",
+    "pageview",
+    "signup",
+    "signin",
+    "webhook",
+    "noopener",
+    "noreferrer"
+  ]
+}

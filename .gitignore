@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+*.local
+serviceAccount*.json
+firebase-service-account*.json
+.google-credentials*.json
+.gitleaks-report.json
+.trivy-report.json
+.semgrep/
