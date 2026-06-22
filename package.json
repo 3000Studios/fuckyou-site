@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "echo No lint configured yet",
-    "typecheck": "echo No typecheck configured yet",
-    "build": "echo Static scaffold ready"
+    "lint": "node --check scripts/build.mjs && node --check src/main.js && node --check src/story-data.js",
+    "typecheck": "node --check scripts/build.mjs && node --check src/main.js && node --check src/story-data.js",
+    "build": "node scripts/build.mjs"
   }
 }
