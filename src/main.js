@@ -318,6 +318,47 @@ function botMarkup(page) {
   `;
 }
 
+function atlasMarkup() {
+  const staticEntries = Object.keys(staticPages)
+    .map((slug) => ({ slug, label: staticPages[slug].title }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  const holeGroups = Array.from({ length: 10 }, (_, groupIndex) => {
+    const start = groupIndex * 20;
+    const links = rabbitHoles.slice(start, start + 20).map((hole) => `
+      <a class="atlas-link" href="/hole/${hole.slug}">#${String(hole.id).padStart(3, "0")}</a>
+    `).join("");
+    return `
+      <div class="atlas-group">
+        <span>Holes ${String(start + 1).padStart(3, "0")} - ${String(start + 20).padStart(3, "0")}</span>
+        <div class="atlas-links">${links}</div>
+      </div>
+    `;
+  }).join("");
+  const staticLinks = staticEntries.map((entry) => `
+    <a class="atlas-link" href="/${entry.slug}">${entry.label}</a>
+  `).join("");
+
+  return `
+    <section class="atlas-panel" aria-label="Page atlas">
+      <div class="atlas-head">
+        <p class="eyebrow">Page atlas</p>
+        <strong>Jump anywhere in the site.</strong>
+        <p class="lede">Every hole and every static page is available from here, so navigation never depends on a hidden menu or a single path.</p>
+      </div>
+      <div class="atlas-column">
+        <div class="atlas-section">
+          <h2>Static pages</h2>
+          <div class="atlas-links atlas-links-static">${staticLinks}</div>
+        </div>
+        <div class="atlas-section">
+          <h2>Rabbit holes</h2>
+          ${holeGroups}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 function homeView() {
   const cards = rabbitHoles.map((hole) => `
     <button class="rabbit-card" data-slug="${hole.slug}" style="--card-hue:${hole.theme.hue};--card-accent:${hole.theme.accent}">
@@ -365,6 +406,7 @@ function homeView() {
       </div>
       <div class="rabbit-grid">${cards}</div>
     </section>
+    ${atlasMarkup()}
   `;
 }
 
@@ -409,6 +451,7 @@ function holeView(hole) {
         </div>
       </div>
     </section>
+    ${atlasMarkup()}
   `;
 }
 
@@ -432,6 +475,7 @@ function staticView(page) {
         </div>
       </div>
     </section>
+    ${atlasMarkup()}
   `;
 }
 
