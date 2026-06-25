@@ -20,3 +20,5 @@ firebase-service-account*.json
 serviceAccount*.json
 firebase-service-account*.json
 global.env
+.wrangler/
+dist/
