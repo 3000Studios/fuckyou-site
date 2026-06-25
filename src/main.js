@@ -2,7 +2,6 @@ import { getRabbitHoleBySlug, rabbitHoles } from "./story-data.js";
 
 const app = document.getElementById("app");
 const pageCount = rabbitHoles.length;
-const introDismissedKey = "fuckyou-site:intro-dismissed";
 const audioEnabledKey = "fuckyou-site:audio-enabled";
 const audioModeKey = "fuckyou-site:audio-mode";
 let audioContext = null;
@@ -148,7 +147,6 @@ function shell(content, theme, extraClasses = "") {
         ${content}
         ${siteFooter()}
       </div>
-      ${intro()}
     </div>
   `;
 }
@@ -320,17 +318,6 @@ function botMarkup(page) {
   `;
 }
 
-function intro() {
-  const dismissed = window.localStorage.getItem(introDismissedKey) === "1";
-  return dismissed ? "" : `
-    <button class="intro-overlay" data-dismiss-intro type="button" aria-label="Skip intro">
-      <span class="intro-badge">Tap anywhere to enter</span>
-      <strong>The floor is about to lie to you.</strong>
-      <span class="intro-sub">Skip the intro or wait for the door to open itself.</span>
-    </button>
-  `;
-}
-
 function homeView() {
   const cards = rabbitHoles.map((hole) => `
     <button class="rabbit-card" data-slug="${hole.slug}" style="--card-hue:${hole.theme.hue};--card-accent:${hole.theme.accent}">
@@ -355,6 +342,19 @@ function homeView() {
       <div class="hero-face">
         <button class="face-button" data-slug="hole-001" aria-label="Open the first rabbit hole">ಠ_ಠ</button>
         <p>Press the face. It acts like it knows something.</p>
+      </div>
+    </section>
+    <section class="home-nav-panel">
+      <div>
+        <p class="eyebrow">Navigate first</p>
+        <strong>Use this panel instead of a popup.</strong>
+        <p class="lede">Jump straight to the main hole, legal pages, or the contact route without dismissing anything.</p>
+      </div>
+      <div class="home-nav-links">
+        <a class="nav-pill" href="/hole/hole-001">Start hole 001</a>
+        <a class="nav-pill" href="/about">About</a>
+        <a class="nav-pill" href="/contact">Contact</a>
+        <a class="nav-pill" href="/privacy-policy">Privacy</a>
       </div>
     </section>
     <section class="grid-shell">
@@ -540,15 +540,6 @@ function render() {
     });
   }
 
-  const dismiss = app.querySelector("[data-dismiss-intro]");
-  if (dismiss) {
-    dismiss.addEventListener("click", () => {
-      window.localStorage.setItem(introDismissedKey, "1");
-      ensureAudioContext();
-      render();
-    });
-  }
-
   if (route.type === "hole") {
     bindSceneControls(hole);
     maybeTriggerScare(hole);
@@ -559,10 +550,6 @@ function render() {
 
 window.addEventListener("popstate", render);
 window.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && window.localStorage.getItem(introDismissedKey) !== "1") {
-    window.localStorage.setItem(introDismissedKey, "1");
-    render();
-  }
   if (event.key === " ") {
     ensureAudioContext();
     playWarpSound(pageCount);
