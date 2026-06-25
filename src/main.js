@@ -3,6 +3,11 @@ import { getRabbitHoleBySlug, rabbitHoles } from "./story-data.js";
 const app = document.getElementById("app");
 const pageCount = rabbitHoles.length;
 const introDismissedKey = "fuckyou-site:intro-dismissed";
+const audioEnabledKey = "fuckyou-site:audio-enabled";
+const audioModeKey = "fuckyou-site:audio-mode";
+let audioContext = null;
+let ambientNodes = [];
+let ambientTimer = null;
 
 const staticPages = {
   about: {
@@ -165,17 +170,153 @@ function siteHeader() {
         <a href="/terms">Terms</a>
         <a href="/contact">Contact</a>
       </nav>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-menu">
+        <span class="menu-gear"></span>
+        <span class="menu-copy">menu</span>
+      </button>
+      <button class="audio-toggle" type="button" data-audio-toggle>
+        <span class="audio-dot"></span>
+        <span>sound</span>
+      </button>
     </header>
+    <div class="mobile-menu" id="mobile-menu" hidden>
+      <div class="mobile-menu-panel">
+        <button class="menu-close" type="button" data-menu-close>close</button>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy-policy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/accessibility">Accessibility</a>
+        <a href="/hole/hole-001">Start hole 001</a>
+      </div>
+    </div>
   `;
 }
 
 function siteFooter() {
   return `
     <footer class="site-footer">
-      <span>100 pages of weirdness</span>
+      <span>200 pages of weirdness</span>
       <span>keyboard friendly</span>
       <span>Cloudflare-ready static build</span>
     </footer>
+  `;
+}
+
+function ensureAudioContext() {
+  if (typeof window === "undefined") return null;
+  if (!audioContext) {
+    const Context = window.AudioContext || window.webkitAudioContext;
+    if (!Context) return null;
+    audioContext = new Context();
+  }
+  if (audioContext.state === "suspended") {
+    audioContext.resume().catch(() => {});
+  }
+  window.localStorage.setItem(audioEnabledKey, "1");
+  return audioContext;
+}
+
+function stopAmbient() {
+  ambientNodes.forEach((node) => {
+    try { node.stop(); } catch {}
+  });
+  ambientNodes = [];
+  if (ambientTimer) {
+    clearInterval(ambientTimer);
+    ambientTimer = null;
+  }
+}
+
+function playTone({ type = "sine", frequency = 220, duration = 0.12, gain = 0.05, detune = 0 }) {
+  const ctx = ensureAudioContext();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const amp = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = frequency;
+  osc.detune.value = detune;
+  amp.gain.value = gain;
+  osc.connect(amp);
+  amp.connect(ctx.destination);
+  osc.start();
+  amp.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+  osc.stop(ctx.currentTime + duration);
+}
+
+function startAmbient(mode = "night") {
+  const ctx = ensureAudioContext();
+  if (!ctx) return;
+  stopAmbient();
+  const base = mode === "wild" ? 82 : mode === "drone" ? 62 : 98;
+  const intervals = mode === "wild" ? [0, 5, 12] : mode === "drone" ? [0, 7] : [0, 4, 9];
+  intervals.forEach((offset, index) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = index % 2 === 0 ? "sine" : "triangle";
+    osc.frequency.value = base + offset;
+    gain.gain.value = 0.006 + index * 0.003;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    ambientNodes.push(osc);
+  });
+  ambientTimer = window.setInterval(() => {
+    const tones = [base, base + 3, base + 7, base + 12];
+    playTone({ type: "triangle", frequency: tones[Math.floor(Math.random() * tones.length)], duration: 0.11, gain: 0.012 });
+  }, mode === "wild" ? 1200 : 1800);
+  window.localStorage.setItem(audioModeKey, mode);
+}
+
+function playWarpSound(seed = 0) {
+  const base = 120 + (seed % 8) * 42;
+  playTone({ type: "sawtooth", frequency: base, duration: 0.08, gain: 0.03 });
+  setTimeout(() => playTone({ type: "triangle", frequency: base * 1.8, duration: 0.1, gain: 0.025 }), 40);
+  setTimeout(() => playTone({ type: "square", frequency: base * 0.5, duration: 0.14, gain: 0.02 }), 80);
+}
+
+function playScareSting() {
+  playTone({ type: "square", frequency: 98, duration: 0.18, gain: 0.035 });
+  setTimeout(() => playTone({ type: "sawtooth", frequency: 840, duration: 0.16, gain: 0.02 }), 60);
+  setTimeout(() => playTone({ type: "triangle", frequency: 64, duration: 0.24, gain: 0.03 }), 120);
+}
+
+function soundBoardButtons(page) {
+  return ["zap", "thump", "boo", "luxe", "bs", "whoa"].map((label, index) => `
+    <button class="sound-chip" data-sound="${label}" data-tone="${index}" type="button">${label}</button>
+  `).join("");
+}
+
+function gameMarkup(page) {
+  return `
+    <div class="mini-game" data-game="${page.gameKind}">
+      <div class="mini-game-head">
+        <strong>${page.gameLine}</strong>
+        <span>${page.adultCue}</span>
+        <span>${page.layoutLine}</span>
+      </div>
+      <button class="primary-button mini-game-button" data-warp type="button">Click warp</button>
+      <div class="warp-track" aria-hidden="true">
+        <span class="warp-dot"></span>
+        <span class="warp-dot"></span>
+        <span class="warp-dot"></span>
+        <span class="warp-dot"></span>
+      </div>
+    </div>
+  `;
+}
+
+function botMarkup(page) {
+  const lines = [
+    `${page.botVoice} bot: "You clicked the wrong tunnel, champ."`,
+    `room bot: "That was embarrassing."`,
+    `gremlin bot: "Try another warp if you want the spicy route."`,
+  ];
+  return `
+    <div class="bot-crowd" aria-label="Chaotic bot chatter">
+      ${lines.map((line, index) => `<div class="bot-float bot-${index + 1}">${line}</div>`).join("")}
+    </div>
   `;
 }
 
@@ -203,7 +344,7 @@ function homeView() {
   return `
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">100 weird pages. zero chill.</p>
+        <p class="eyebrow">200 weird pages. zero chill.</p>
         <h1>Tap one button and drop into a new flavor of nonsense.</h1>
         <p class="lede">Every page is generated to feel different: new copy, new color, new motion, new level of weird, and a fresh reason to click again.</p>
         <div class="hero-actions">
@@ -229,7 +370,7 @@ function homeView() {
 
 function holeView(hole) {
   return `
-    <section class="story-shell transition-${hole.transition}">
+    <section class="story-shell transition-${hole.transition} mode-${hole.layoutMode}">
       <a class="back-link" href="/">← back to the chaos grid</a>
       <div class="story-panel">
         <div class="story-kicker">
@@ -243,6 +384,8 @@ function holeView(hole) {
           <p>${hole.opening}</p>
           <p>${hole.punchline}</p>
           <p>${hole.prompt}</p>
+          <p>${hole.adultCue}</p>
+          <p>${hole.botLine}</p>
         </div>
         <div class="story-notes">
           ${hole.crumbs.map((item) => `<p>${item}</p>`).join("")}
@@ -250,6 +393,16 @@ function holeView(hole) {
         <div class="story-oddities">
           ${hole.oddities.map((item) => `<div>${item}</div>`).join("")}
         </div>
+        <div class="story-variant">
+          <span>${hole.layoutLine}</span>
+          <span>${hole.tunnelStyle} tunnel</span>
+          <span>${hole.soundSet} board</span>
+        </div>
+        ${botMarkup(hole)}
+        <div class="soundboard" aria-label="Sound board">
+          ${soundBoardButtons(hole)}
+        </div>
+        ${gameMarkup(hole)}
         <div class="story-actions">
           <button class="primary-button" data-next>Open another cursed page</button>
           <button class="secondary-button" data-random>Surprise me harder</button>
@@ -280,6 +433,72 @@ function staticView(page) {
       </div>
     </section>
   `;
+}
+
+function maybeTriggerScare(hole) {
+  if (!hole.scare) return;
+  playScareSting();
+  document.body.classList.add("scare-flash");
+  window.setTimeout(() => document.body.classList.remove("scare-flash"), 260);
+}
+
+function bindMenu() {
+  const toggle = app.querySelector("[data-menu-toggle]");
+  const menu = app.querySelector("#mobile-menu");
+  const close = app.querySelector("[data-menu-close]");
+  if (!toggle || !menu || !close) return;
+  const open = () => {
+    menu.hidden = false;
+    menu.classList.add("open");
+    toggle.setAttribute("aria-expanded", "true");
+  };
+  const hide = () => {
+    menu.classList.remove("open");
+    toggle.setAttribute("aria-expanded", "false");
+    window.setTimeout(() => { menu.hidden = true; }, 180);
+  };
+  toggle.addEventListener("click", () => {
+    if (menu.hidden) open(); else hide();
+  });
+  close.addEventListener("click", hide);
+  menu.addEventListener("click", (event) => {
+    if (event.target === menu) hide();
+  });
+}
+
+function bindAudioToggle(hole) {
+  const toggle = app.querySelector("[data-audio-toggle]");
+  if (!toggle) return;
+  toggle.addEventListener("click", () => {
+    const currentMode = window.localStorage.getItem(audioModeKey) || "night";
+    const nextMode = currentMode === "night" ? "drone" : currentMode === "drone" ? "wild" : "night";
+    startAmbient(nextMode);
+    toggle.dataset.mode = nextMode;
+    toggle.classList.add("active");
+    window.setTimeout(() => toggle.classList.remove("active"), 240);
+    if (hole?.scare) playScareSting();
+  });
+}
+
+function bindSceneControls(hole) {
+  const soundButtons = app.querySelectorAll("[data-sound]");
+  soundButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const tone = Number(button.dataset.tone || 0);
+      playWarpSound(hole.id + tone);
+      button.classList.add("pulse");
+      window.setTimeout(() => button.classList.remove("pulse"), 240);
+    });
+  });
+
+  const warp = app.querySelector("[data-warp]");
+  if (warp) {
+    warp.addEventListener("click", () => {
+      const nextIndex = ((hole.id + 11) % pageCount) + 1;
+      playWarpSound(nextIndex);
+      navigate(`/hole/hole-${String(nextIndex).padStart(3, "0")}`);
+    });
+  }
 }
 
 function render() {
@@ -325,9 +544,17 @@ function render() {
   if (dismiss) {
     dismiss.addEventListener("click", () => {
       window.localStorage.setItem(introDismissedKey, "1");
+      ensureAudioContext();
       render();
     });
   }
+
+  if (route.type === "hole") {
+    bindSceneControls(hole);
+    maybeTriggerScare(hole);
+  }
+  bindMenu();
+  bindAudioToggle(hole);
 }
 
 window.addEventListener("popstate", render);
@@ -335,6 +562,14 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && window.localStorage.getItem(introDismissedKey) !== "1") {
     window.localStorage.setItem(introDismissedKey, "1");
     render();
+  }
+  if (event.key === " ") {
+    ensureAudioContext();
+    playWarpSound(pageCount);
+  }
+  if (event.key.toLowerCase?.() === "m") {
+    const toggle = app.querySelector("[data-menu-toggle]");
+    if (toggle) toggle.click();
   }
 });
 render();
