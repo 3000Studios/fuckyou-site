@@ -1,10 +1,10 @@
-const moods = ["feral", "neon", "gremlin", "static", "glitch", "wobbly", "snide", "dream-dumb", "slick", "smutty", "rude", "velvet", "spicy", "chaotic"];
+const moods = ["playful", "neon", "gremlin", "static", "glitch", "wobbly", "curious", "dreamlike", "slick", "surreal", "bright", "velvet", "zesty", "chaotic"];
 const transitions = ["tilt", "blink", "melt", "swerve", "shiver", "spin", "snap", "drift", "warp", "thump", "jolt", "squirm"];
 const creatures = ["mango goblin", "yard oracle", "cursed pigeon", "desk goblin", "moon rat", "mood raccoon", "paper phantom", "keyboard shrimp", "velvet imp", "street sprite", "catty bot", "bruise clown"];
 const verbs = ["haunts", "snickers at", "unfolds over", "jumps through", "throws crumbs at", "judges", "loops around", "spits glitter on", "licks", "heckles", "teases", "roasts"];
-const objects = ["a red stapler", "a rubber crown", "a broken vending machine", "a haunted loafer", "a polite tornado", "a screaming salad", "a fake moon", "a suspicious banana", "a satin chain", "a velvet couch", "a neon whip", "a bad decision"];
+const objects = ["a red stapler", "a rubber crown", "a broken vending machine", "a haunted loafer", "a polite tornado", "a singing salad", "a fake moon", "a suspicious banana", "a paper chain", "a velvet couch", "a neon lantern", "a puzzling detour"];
 const endings = ["because dignity left the building", "and that is somehow the whole point", "while nobody was looking", "like a bad idea with excellent lighting", "to prove the floor can blink", "for no reason except vibes", "because the universe misclicked", "and now the walls are laughing", "with a wink and a warning", "after the bass dropped"];
-const tunnelStyles = ["after-dark", "cabaret", "glitch", "basement", "arcade", "midnight", "boudoir", "trash-kingdom", "signal", "riot"];
+const tunnelStyles = ["starlit", "cabaret", "glitch", "workshop", "arcade", "midnight", "gallery", "paper-kingdom", "signal", "parade"];
 const layoutModes = ["stack", "split", "capsule", "fan", "panel", "grid"];
 const botVoices = ["sarcastic", "teasing", "smug", "gravelly", "dramatic", "deadpan"];
 const gameKinds = ["warp-runner", "button-duel", "memory-madness", "blink-match", "noise-seeker", "coin-tilt"];
@@ -34,7 +34,6 @@ export const rabbitHoles = Array.from({ length: 200 }, (_, index) => {
   const accent = (hue + 145) % 360;
   const moodIntensity = index % 4 === 0 ? "hard-rim" : index % 4 === 1 ? "slow-burn" : index % 4 === 2 ? "mean-glow" : "wild-card";
   const scare = index % 10 === 0 || index % 17 === 0;
-  const adult = index % 3 === 0;
 
   return {
     id: index + 1,
@@ -51,7 +50,6 @@ export const rabbitHoles = Array.from({ length: 200 }, (_, index) => {
     soundSet,
     layoutMode,
     scare,
-    adult,
     moodIntensity,
     theme: {
       hue,
@@ -69,7 +67,7 @@ export const rabbitHoles = Array.from({ length: 200 }, (_, index) => {
     crumbs: [
       `${creature} fact: nobody invited it.`,
       `Object of shame: ${object}.`,
-      `Tone: ${mood}, but worse.`,
+      `Tone: ${mood}, with a curious twist.`,
     ],
     oddities: [
       `${creature} ${verb} the air like it owes money.`,
@@ -77,7 +75,7 @@ export const rabbitHoles = Array.from({ length: 200 }, (_, index) => {
       `Somewhere, a button becomes a question.`,
     ],
     cta: `Open the ${transition} door`,
-    adultCue: adult ? `After-dark energy: ${tunnelStyle}.` : `Trouble level: ${moodIntensity}.`,
+    curiosityCue: `Curiosity meter: ${moodIntensity}.`,
     botLine: `${botVoice} bot says the ${soundSet} signal is live.`,
     gameLine: `${gameKind} gets weird on this page.`,
     layoutLine: `${layoutMode} layout keeps page ${index + 1} visually distinct.`,

@@ -24,6 +24,10 @@ await writeFile(
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; media-src 'self'
+  Cache-Control: public, max-age=0, must-revalidate
+
+/src/*
   Cache-Control: public, max-age=0, must-revalidate
 \n`
 );

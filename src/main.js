@@ -12,57 +12,57 @@ const staticPages = {
   about: {
     title: "About",
     body: [
-      "fuckyou.site is a chaotic experimental rabbit hole built to keep people curious and clicking.",
-      "It mixes weird humor, animated transitions, and a deliberately strange content structure so each page feels different from the last.",
+      "fuckyou.site is an experimental collection of original surreal humor and small interactive scenes.",
+      "Each rabbit hole combines a short piece of fictional absurdity with color, motion, and optional browser-generated sound. The site is designed for casual entertainment, not advice, news, or real-world claims.",
     ],
   },
   contact: {
     title: "Contact",
     body: [
-      "Use this site as a conversation starter, a joke machine, or a curiosity trap.",
-      "For business or technical contact, wire this page to the repo's preferred support path before production launch.",
+      "This site currently does not collect messages or publish a public support channel.",
+      "Before submitting the site for an advertising review, the owner should publish a real, monitored contact method here for policy, copyright, and business inquiries.",
     ],
   },
   "privacy-policy": {
     title: "Privacy Policy",
     body: [
-      "This site is intentionally lightweight and does not require user accounts for the rabbit-hole experience.",
-      "If analytics, forms, or other telemetry are enabled, they should be documented here before launch.",
+      "This site does not require accounts, forms, or purchases for the rabbit-hole experience.",
+      "The optional sound control saves a preference in your browser's local storage. If analytics, advertising, forms, or other data collection are enabled later, this policy will be updated before those features are used.",
     ],
   },
   terms: {
     title: "Terms",
     body: [
-      "The site is provided as an entertainment experience with no guarantees beyond basic functionality.",
-      "Users are responsible for how they interact with the content and any external destinations they choose to visit.",
+      "The site is provided as an entertainment experience and may change without notice.",
+      "All stories and characters are fictional. Do not use the content as professional, legal, medical, financial, or safety guidance.",
     ],
   },
   disclaimer: {
     title: "Disclaimer",
     body: [
-      "The content is satirical and absurd by design.",
-      "It should not be treated as factual guidance, professional advice, or a reliable oracle of any kind.",
+      "The content is fictional, satirical, and absurd by design.",
+      "It is not factual guidance, professional advice, or an endorsement of any product, service, or outside site.",
     ],
   },
   "refund-policy": {
     title: "Refund Policy",
     body: [
-      "No paid product is exposed in this repo, so there is nothing to refund here.",
-      "If monetization is added later, this page must be updated to match the actual offer terms.",
+      "No products, subscriptions, or paid services are offered on this site.",
+      "If that changes, this page will be replaced with the applicable refund and cancellation terms before any payment is accepted.",
     ],
   },
   "cookie-policy": {
     title: "Cookie Policy",
     body: [
-      "If cookies or similar storage are used, they should be documented and limited to the minimum necessary behavior.",
-      "No tracking is implied by this static build unless explicitly added later.",
+      "The optional sound control uses local storage to remember a browser preference. It is not used to identify you or track browsing across sites.",
+      "No advertising, analytics, or non-essential cookies are active in this build. If that changes, the site will publish the required notice and consent choices before activation.",
     ],
   },
   accessibility: {
     title: "Accessibility Statement",
     body: [
-      "The interface supports keyboard navigation, responsive layout changes, focus states, and reduced-motion-friendly CSS patterns.",
-      "Further accessibility improvements should be validated against real browser and screen reader behavior before launch.",
+      "The interface supports keyboard navigation, responsive layouts, visible focus states, and reduced-motion preferences.",
+      "If you encounter an accessibility barrier, use the contact method published by the owner once it is available.",
     ],
   },
 };
@@ -74,7 +74,7 @@ function routeFromLocation() {
   if (holeMatch) return { type: "hole", slug: holeMatch[1] };
   const staticMatch = path.match(/^\/([a-z0-9-]+)$/i);
   if (staticPages[staticMatch?.[1]]) return { type: "static", slug: staticMatch[1] };
-  return { type: "home" };
+  return { type: "notfound" };
 }
 
 function navigate(url) {
@@ -92,7 +92,29 @@ function updateHead(meta) {
   setMeta("twitter:title", meta.title);
   setMeta("twitter:description", meta.description);
   setMeta("theme-color", meta.themeColor, "name");
+  setCanonical(`${window.location.origin}${window.location.pathname}`);
+  setRobots(meta.robots);
   setStructuredData(meta);
+}
+
+function setCanonical(url) {
+  let tag = document.head.querySelector('link[rel="canonical"]');
+  if (!tag) {
+    tag = document.createElement("link");
+    tag.rel = "canonical";
+    document.head.append(tag);
+  }
+  tag.href = url;
+}
+
+function setRobots(content = "index,follow") {
+  let tag = document.head.querySelector('meta[name="robots"]');
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.name = "robots";
+    document.head.append(tag);
+  }
+  tag.content = content;
 }
 
 function setMeta(name, content, attr = "name") {
@@ -168,36 +190,27 @@ function siteHeader() {
         <a href="/terms">Terms</a>
         <a href="/contact">Contact</a>
       </nav>
-      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-menu">
-        <span class="menu-gear"></span>
-        <span class="menu-copy">menu</span>
-      </button>
       <button class="audio-toggle" type="button" data-audio-toggle>
         <span class="audio-dot"></span>
         <span>sound</span>
       </button>
     </header>
-    <div class="mobile-menu" id="mobile-menu" hidden>
-      <div class="mobile-menu-panel">
-        <button class="menu-close" type="button" data-menu-close>close</button>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
-        <a href="/privacy-policy">Privacy</a>
-        <a href="/terms">Terms</a>
-        <a href="/accessibility">Accessibility</a>
-        <a href="/hole/hole-001">Start hole 001</a>
-      </div>
-    </div>
   `;
 }
 
 function siteFooter() {
   return `
     <footer class="site-footer">
-      <span>200 pages of weirdness</span>
+      <span>Original surreal humor</span>
       <span>keyboard friendly</span>
-      <span>Cloudflare-ready static build</span>
+      <nav class="footer-nav" aria-label="Site information">
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy-policy">Privacy</a>
+        <a href="/cookie-policy">Cookies</a>
+        <a href="/terms">Terms</a>
+        <a href="/accessibility">Accessibility</a>
+      </nav>
     </footer>
   `;
 }
@@ -291,7 +304,7 @@ function gameMarkup(page) {
     <div class="mini-game" data-game="${page.gameKind}">
       <div class="mini-game-head">
         <strong>${page.gameLine}</strong>
-        <span>${page.adultCue}</span>
+        <span>${page.curiosityCue}</span>
         <span>${page.layoutLine}</span>
       </div>
       <button class="primary-button mini-game-button" data-warp type="button">Click warp</button>
@@ -309,53 +322,12 @@ function botMarkup(page) {
   const lines = [
     `${page.botVoice} bot: "You clicked the wrong tunnel, champ."`,
     `room bot: "That was embarrassing."`,
-    `gremlin bot: "Try another warp if you want the spicy route."`,
+    `gremlin bot: "Try another warp for a new scene."`,
   ];
   return `
     <div class="bot-crowd" aria-label="Chaotic bot chatter">
       ${lines.map((line, index) => `<div class="bot-float bot-${index + 1}">${line}</div>`).join("")}
     </div>
-  `;
-}
-
-function atlasMarkup() {
-  const staticEntries = Object.keys(staticPages)
-    .map((slug) => ({ slug, label: staticPages[slug].title }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-  const holeGroups = Array.from({ length: 10 }, (_, groupIndex) => {
-    const start = groupIndex * 20;
-    const links = rabbitHoles.slice(start, start + 20).map((hole) => `
-      <a class="atlas-link" href="/hole/${hole.slug}">#${String(hole.id).padStart(3, "0")}</a>
-    `).join("");
-    return `
-      <div class="atlas-group">
-        <span>Holes ${String(start + 1).padStart(3, "0")} - ${String(start + 20).padStart(3, "0")}</span>
-        <div class="atlas-links">${links}</div>
-      </div>
-    `;
-  }).join("");
-  const staticLinks = staticEntries.map((entry) => `
-    <a class="atlas-link" href="/${entry.slug}">${entry.label}</a>
-  `).join("");
-
-  return `
-    <section class="atlas-panel" aria-label="Page atlas">
-      <div class="atlas-head">
-        <p class="eyebrow">Page atlas</p>
-        <strong>Jump anywhere in the site.</strong>
-        <p class="lede">Every hole and every static page is available from here, so navigation never depends on a hidden menu or a single path.</p>
-      </div>
-      <div class="atlas-column">
-        <div class="atlas-section">
-          <h2>Static pages</h2>
-          <div class="atlas-links atlas-links-static">${staticLinks}</div>
-        </div>
-        <div class="atlas-section">
-          <h2>Rabbit holes</h2>
-          ${holeGroups}
-        </div>
-      </div>
-    </section>
   `;
 }
 
@@ -385,19 +357,6 @@ function homeView() {
         <p>Press the face. It acts like it knows something.</p>
       </div>
     </section>
-    <section class="home-nav-panel">
-      <div>
-        <p class="eyebrow">Navigate first</p>
-        <strong>Use this panel instead of a popup.</strong>
-        <p class="lede">Jump straight to the main hole, legal pages, or the contact route without dismissing anything.</p>
-      </div>
-      <div class="home-nav-links">
-        <a class="nav-pill" href="/hole/hole-001">Start hole 001</a>
-        <a class="nav-pill" href="/about">About</a>
-        <a class="nav-pill" href="/contact">Contact</a>
-        <a class="nav-pill" href="/privacy-policy">Privacy</a>
-      </div>
-    </section>
     <section class="grid-shell">
       <div class="grid-meta">
         <span>${pageCount} rabbit holes</span>
@@ -406,7 +365,6 @@ function homeView() {
       </div>
       <div class="rabbit-grid">${cards}</div>
     </section>
-    ${atlasMarkup()}
   `;
 }
 
@@ -426,7 +384,7 @@ function holeView(hole) {
           <p>${hole.opening}</p>
           <p>${hole.punchline}</p>
           <p>${hole.prompt}</p>
-          <p>${hole.adultCue}</p>
+          <p>${hole.curiosityCue}</p>
           <p>${hole.botLine}</p>
         </div>
         <div class="story-notes">
@@ -451,7 +409,6 @@ function holeView(hole) {
         </div>
       </div>
     </section>
-    ${atlasMarkup()}
   `;
 }
 
@@ -475,7 +432,22 @@ function staticView(page) {
         </div>
       </div>
     </section>
-    ${atlasMarkup()}
+  `;
+}
+
+function notFoundView() {
+  return `
+    <section class="story-shell transition-drift">
+      <div class="story-panel">
+        <div class="story-kicker"><span>404</span><span>page not found</span></div>
+        <h1>That rabbit hole does not exist.</h1>
+        <p class="lede">The link may be outdated, or the page may have moved. Return home to browse the available scenes.</p>
+        <div class="story-actions">
+          <a class="primary-button link-button" href="/">Return home</a>
+          <a class="secondary-button link-button" href="/about">About the site</a>
+        </div>
+      </div>
+    </section>
   `;
 }
 
@@ -484,30 +456,6 @@ function maybeTriggerScare(hole) {
   playScareSting();
   document.body.classList.add("scare-flash");
   window.setTimeout(() => document.body.classList.remove("scare-flash"), 260);
-}
-
-function bindMenu() {
-  const toggle = app.querySelector("[data-menu-toggle]");
-  const menu = app.querySelector("#mobile-menu");
-  const close = app.querySelector("[data-menu-close]");
-  if (!toggle || !menu || !close) return;
-  const open = () => {
-    menu.hidden = false;
-    menu.classList.add("open");
-    toggle.setAttribute("aria-expanded", "true");
-  };
-  const hide = () => {
-    menu.classList.remove("open");
-    toggle.setAttribute("aria-expanded", "false");
-    window.setTimeout(() => { menu.hidden = true; }, 180);
-  };
-  toggle.addEventListener("click", () => {
-    if (menu.hidden) open(); else hide();
-  });
-  close.addEventListener("click", hide);
-  menu.addEventListener("click", (event) => {
-    if (event.target === menu) hide();
-  });
 }
 
 function bindAudioToggle(hole) {
@@ -549,17 +497,19 @@ function render() {
   const route = routeFromLocation();
   const hole = route.type === "hole" ? getRabbitHoleBySlug(route.slug) : rabbitHoles[0];
   const page = route.type === "static" ? staticPages[route.slug] : null;
-  const title = route.type === "hole" ? `${hole.title} | fuckyou.site` : route.type === "static" ? `${page.title} | fuckyou.site` : "fuckyou.site | rabbit hole generator";
-  const description = route.type === "hole" ? hole.hook : route.type === "static" ? `${page.title} page for fuckyou.site.` : "A bizarre rabbit hole of strange, mean, curious, and wildly different mini-pages.";
+  const title = route.type === "hole" ? `${hole.title} | fuckyou.site` : route.type === "static" ? `${page.title} | fuckyou.site` : route.type === "notfound" ? "Page not found | fuckyou.site" : "fuckyou.site | rabbit hole generator";
+  const description = route.type === "hole" ? hole.hook : route.type === "static" ? `${page.title} for fuckyou.site.` : route.type === "notfound" ? "The requested page is not available." : "Original surreal humor and interactive rabbit-hole scenes.";
   const metaTheme = route.type === "hole" ? hole.theme : rabbitHoles[0].theme;
-  updateHead({ title, description, themeColor: themeColorFromHue(metaTheme.hue) });
+  updateHead({ title, description, themeColor: themeColorFromHue(metaTheme.hue), robots: route.type === "home" || route.type === "static" ? "index,follow" : "noindex,follow" });
 
   if (route.type === "home") {
     app.innerHTML = shell(homeView(), rabbitHoles[0].theme, "page-home");
   } else if (route.type === "hole") {
     app.innerHTML = shell(holeView(hole), hole.theme, "page-hole");
-  } else {
+  } else if (route.type === "static") {
     app.innerHTML = shell(staticView(page), rabbitHoles[0].theme, "page-static");
+  } else {
+    app.innerHTML = shell(notFoundView(), rabbitHoles[0].theme, "page-notfound");
   }
 
   document.body.dataset.page = route.type;
@@ -588,7 +538,6 @@ function render() {
     bindSceneControls(hole);
     maybeTriggerScare(hole);
   }
-  bindMenu();
   bindAudioToggle(hole);
 }
 
@@ -597,10 +546,6 @@ window.addEventListener("keydown", (event) => {
   if (event.key === " ") {
     ensureAudioContext();
     playWarpSound(pageCount);
-  }
-  if (event.key.toLowerCase?.() === "m") {
-    const toggle = app.querySelector("[data-menu-toggle]");
-    if (toggle) toggle.click();
   }
 });
 render();
