@@ -198,14 +198,17 @@ h1 { font-size: clamp(2.7rem, 6vw, 6rem); line-height: .92; margin: 12px 0 16px;
 
 @media (max-width: 800px) {
   .scene { padding: 16px; }
-  .site-header, .site-footer { flex-direction: column; align-items: flex-start; }
+  .site-footer { flex-direction: column; align-items: flex-start; }
   .hero { grid-template-columns: 1fr; }
   .story-actions { grid-template-columns: 1fr; }
   h1 { max-width: none; }
   .warp-track { grid-template-columns: repeat(2, 1fr); }
   .mode-split .story-panel { grid-template-columns: 1fr; }
   .site-header, .hero, .grid-shell, .story-shell { min-width: 0; }
-  .site-header { width: 100%; align-items: flex-start; flex-wrap: wrap; }
-  .site-nav { order: 3; width: 100%; max-width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .site-header { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .brand { min-width: 0; }
+  .brand-copy { min-width: 0; }
+  .brand-copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .site-nav { grid-column: 1 / -1; width: auto; max-width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
   .site-nav a { flex: 0 0 auto; }
 }
