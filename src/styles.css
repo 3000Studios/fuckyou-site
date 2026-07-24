@@ -210,6 +210,6 @@ h1 { font-size: clamp(2.7rem, 6vw, 6rem); line-height: .92; margin: 12px 0 16px;
   .brand { min-width: 0; }
   .brand-copy { min-width: 0; }
   .brand-copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .site-nav { grid-column: 1 / -1; width: auto; min-width: 0; max-width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
-  .site-nav a { flex: 0 0 auto; }
+  .site-nav { grid-column: 1 / -1; width: 100%; min-width: 0; max-width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .site-nav a { min-width: 0; padding: 8px 4px; text-align: center; white-space: nowrap; }
 }
