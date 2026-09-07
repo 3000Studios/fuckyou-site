@@ -12,60 +12,57 @@ const staticPages = {
   about: {
     title: "About",
     body: [
-      "fuckyou.site is a chaotic experimental rabbit hole built to keep people curious and clicking.",
-      "It mixes weird humor, animated transitions, and a deliberately strange content structure so each page feels different from the last.",
+      "fuckyou.site is an experimental collection of original surreal humor and small interactive scenes.",
+      "Each rabbit hole combines a short piece of fictional absurdity with color, motion, and optional browser-generated sound. The site is designed for casual entertainment, not advice, news, or real-world claims.",
     ],
   },
   contact: {
     title: "Contact",
     body: [
-      "Use this site as a conversation starter, a joke machine, or a curiosity trap.",
-      "For business or technical contact, wire this page to the repo's preferred support path before production launch.",
+      "This site currently does not collect messages or publish a public support channel.",
+      "Before submitting the site for an advertising review, the owner should publish a real, monitored contact method here for policy, copyright, and business inquiries.",
     ],
   },
   "privacy-policy": {
     title: "Privacy Policy",
     body: [
-      "This site respects your privacy and does not require account registration.",
-      "We use third-party advertising companies, including Google AdSense, to serve ads when you visit our website.",
-      "Google uses cookies (including the DoubleClick DART cookie) to serve ads based on your prior visits to this website or other sites on the Internet.",
-      "You may opt out of personalized advertising by visiting Google Ads Settings (https://www.google.com/settings/ads) or www.aboutads.info.",
-      "For privacy questions, please email mr.jwswain@gmail.com.",
+      "This site does not require accounts, forms, or purchases for the rabbit-hole experience.",
+      "The optional sound control saves a preference in your browser's local storage. If analytics, advertising, forms, or other data collection are enabled later, this policy will be updated before those features are used.",
     ],
   },
   terms: {
     title: "Terms",
     body: [
-      "The site is provided as an entertainment experience with no guarantees beyond basic functionality.",
-      "Users are responsible for how they interact with the content and any external destinations they choose to visit.",
+      "The site is provided as an entertainment experience and may change without notice.",
+      "All stories and characters are fictional. Do not use the content as professional, legal, medical, financial, or safety guidance.",
     ],
   },
   disclaimer: {
     title: "Disclaimer",
     body: [
-      "The content is satirical and absurd by design.",
-      "It should not be treated as factual guidance, professional advice, or a reliable oracle of any kind.",
+      "The content is fictional, satirical, and absurd by design.",
+      "It is not factual guidance, professional advice, or an endorsement of any product, service, or outside site.",
     ],
   },
   "refund-policy": {
     title: "Refund Policy",
     body: [
-      "No paid product is exposed in this repo, so there is nothing to refund here.",
-      "If monetization is added later, this page must be updated to match the actual offer terms.",
+      "No products, subscriptions, or paid services are offered on this site.",
+      "If that changes, this page will be replaced with the applicable refund and cancellation terms before any payment is accepted.",
     ],
   },
   "cookie-policy": {
     title: "Cookie Policy",
     body: [
-      "If cookies or similar storage are used, they should be documented and limited to the minimum necessary behavior.",
-      "No tracking is implied by this static build unless explicitly added later.",
+      "The optional sound control uses local storage to remember a browser preference. It is not used to identify you or track browsing across sites.",
+      "No advertising, analytics, or non-essential cookies are active in this build. If that changes, the site will publish the required notice and consent choices before activation.",
     ],
   },
   accessibility: {
     title: "Accessibility Statement",
     body: [
-      "The interface supports keyboard navigation, responsive layout changes, focus states, and reduced-motion-friendly CSS patterns.",
-      "Further accessibility improvements should be validated against real browser and screen reader behavior before launch.",
+      "The interface supports keyboard navigation, responsive layouts, visible focus states, and reduced-motion preferences.",
+      "If you encounter an accessibility barrier, use the contact method published by the owner once it is available.",
     ],
   },
 };
@@ -77,7 +74,7 @@ function routeFromLocation() {
   if (holeMatch) return { type: "hole", slug: holeMatch[1] };
   const staticMatch = path.match(/^\/([a-z0-9-]+)$/i);
   if (staticPages[staticMatch?.[1]]) return { type: "static", slug: staticMatch[1] };
-  return { type: "home" };
+  return { type: "notfound" };
 }
 
 function navigate(url) {
@@ -95,7 +92,29 @@ function updateHead(meta) {
   setMeta("twitter:title", meta.title);
   setMeta("twitter:description", meta.description);
   setMeta("theme-color", meta.themeColor, "name");
+  setCanonical(`${window.location.origin}${window.location.pathname}`);
+  setRobots(meta.robots);
   setStructuredData(meta);
+}
+
+function setCanonical(url) {
+  let tag = document.head.querySelector('link[rel="canonical"]');
+  if (!tag) {
+    tag = document.createElement("link");
+    tag.rel = "canonical";
+    document.head.append(tag);
+  }
+  tag.href = url;
+}
+
+function setRobots(content = "index,follow") {
+  let tag = document.head.querySelector('meta[name="robots"]');
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.name = "robots";
+    document.head.append(tag);
+  }
+  tag.content = content;
 }
 
 function setMeta(name, content, attr = "name") {
@@ -182,9 +201,16 @@ function siteHeader() {
 function siteFooter() {
   return `
     <footer class="site-footer">
-      <span>200 pages of weirdness</span>
+      <span>Original surreal humor</span>
       <span>keyboard friendly</span>
-      <span>Cloudflare-ready static build</span>
+      <nav class="footer-nav" aria-label="Site information">
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy-policy">Privacy</a>
+        <a href="/cookie-policy">Cookies</a>
+        <a href="/terms">Terms</a>
+        <a href="/accessibility">Accessibility</a>
+      </nav>
     </footer>
   `;
 }
@@ -278,7 +304,7 @@ function gameMarkup(page) {
     <div class="mini-game" data-game="${page.gameKind}">
       <div class="mini-game-head">
         <strong>${page.gameLine}</strong>
-        <span>${page.adultCue}</span>
+        <span>${page.curiosityCue}</span>
         <span>${page.layoutLine}</span>
       </div>
       <button class="primary-button mini-game-button" data-warp type="button">Click warp</button>
@@ -296,7 +322,7 @@ function botMarkup(page) {
   const lines = [
     `${page.botVoice} bot: "You clicked the wrong tunnel, champ."`,
     `room bot: "That was embarrassing."`,
-    `gremlin bot: "Try another warp if you want the spicy route."`,
+    `gremlin bot: "Try another warp for a new scene."`,
   ];
   return `
     <div class="bot-crowd" aria-label="Chaotic bot chatter">
@@ -358,7 +384,7 @@ function holeView(hole) {
           <p>${hole.opening}</p>
           <p>${hole.punchline}</p>
           <p>${hole.prompt}</p>
-          <p>${hole.adultCue}</p>
+          <p>${hole.curiosityCue}</p>
           <p>${hole.botLine}</p>
         </div>
         <div class="story-notes">
@@ -403,6 +429,22 @@ function staticView(page) {
         <div class="story-actions">
           <a class="primary-button link-button" href="/hole/hole-001">Launch the rabbit hole</a>
           <a class="secondary-button link-button" href="/contact">Contact</a>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function notFoundView() {
+  return `
+    <section class="story-shell transition-drift">
+      <div class="story-panel">
+        <div class="story-kicker"><span>404</span><span>page not found</span></div>
+        <h1>That rabbit hole does not exist.</h1>
+        <p class="lede">The link may be outdated, or the page may have moved. Return home to browse the available scenes.</p>
+        <div class="story-actions">
+          <a class="primary-button link-button" href="/">Return home</a>
+          <a class="secondary-button link-button" href="/about">About the site</a>
         </div>
       </div>
     </section>
@@ -455,17 +497,19 @@ function render() {
   const route = routeFromLocation();
   const hole = route.type === "hole" ? getRabbitHoleBySlug(route.slug) : rabbitHoles[0];
   const page = route.type === "static" ? staticPages[route.slug] : null;
-  const title = route.type === "hole" ? `${hole.title} | fuckyou.site` : route.type === "static" ? `${page.title} | fuckyou.site` : "fuckyou.site | rabbit hole generator";
-  const description = route.type === "hole" ? hole.hook : route.type === "static" ? `${page.title} page for fuckyou.site.` : "A bizarre rabbit hole of strange, mean, curious, and wildly different mini-pages.";
+  const title = route.type === "hole" ? `${hole.title} | fuckyou.site` : route.type === "static" ? `${page.title} | fuckyou.site` : route.type === "notfound" ? "Page not found | fuckyou.site" : "fuckyou.site | rabbit hole generator";
+  const description = route.type === "hole" ? hole.hook : route.type === "static" ? `${page.title} for fuckyou.site.` : route.type === "notfound" ? "The requested page is not available." : "Original surreal humor and interactive rabbit-hole scenes.";
   const metaTheme = route.type === "hole" ? hole.theme : rabbitHoles[0].theme;
-  updateHead({ title, description, themeColor: themeColorFromHue(metaTheme.hue) });
+  updateHead({ title, description, themeColor: themeColorFromHue(metaTheme.hue), robots: route.type === "home" || route.type === "static" ? "index,follow" : "noindex,follow" });
 
   if (route.type === "home") {
     app.innerHTML = shell(homeView(), rabbitHoles[0].theme, "page-home");
   } else if (route.type === "hole") {
     app.innerHTML = shell(holeView(hole), hole.theme, "page-hole");
-  } else {
+  } else if (route.type === "static") {
     app.innerHTML = shell(staticView(page), rabbitHoles[0].theme, "page-static");
+  } else {
+    app.innerHTML = shell(notFoundView(), rabbitHoles[0].theme, "page-notfound");
   }
 
   document.body.dataset.page = route.type;
