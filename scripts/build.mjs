@@ -29,9 +29,6 @@ await writeFile(
 
 /src/*
   Cache-Control: public, max-age=0, must-revalidate
-
-/src/*
-  Cache-Control: public, max-age=0, must-revalidate
 \n`
 );
 
