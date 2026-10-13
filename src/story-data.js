@@ -9,6 +9,7 @@ const layoutModes = ["stack", "split", "capsule", "fan", "panel", "grid"];
 const botVoices = ["sarcastic", "teasing", "smug", "gravelly", "dramatic", "deadpan"];
 const gameKinds = ["warp-runner", "button-duel", "memory-madness", "blink-match", "noise-seeker", "coin-tilt"];
 const soundSets = ["sizzle", "thump", "crackle", "pop", "buzz", "squeal", "clap", "slam"];
+const adultCues = ["grown-folks nonsense only", "strictly 18+ silliness", "adult humor, zero maturity", "not safe for brunch conversation", "big-kid energy only", "parental guidance politely ignored"];
 
 function pick(list, index, offset = 0) {
   return list[(index + offset) % list.length];
@@ -29,6 +30,7 @@ export const rabbitHoles = Array.from({ length: 200 }, (_, index) => {
   const botVoice = pick(botVoices, index, Math.floor(index / 5));
   const gameKind = pick(gameKinds, index, Math.floor(index / 4));
   const soundSet = pick(soundSets, index, Math.floor(index / 6));
+  const adultCue = pick(adultCues, index, Math.floor(index / 3));
   const layoutMode = pick(layoutModes, index, Math.floor(index / 8));
   const hue = (index * 27 + 40) % 360;
   const accent = (hue + 145) % 360;
@@ -76,6 +78,7 @@ export const rabbitHoles = Array.from({ length: 200 }, (_, index) => {
     ],
     cta: `Open the ${transition} door`,
     curiosityCue: `Curiosity meter: ${moodIntensity}.`,
+    adultCue,
     botLine: `${botVoice} bot says the ${soundSet} signal is live.`,
     gameLine: `${gameKind} gets weird on this page.`,
     layoutLine: `${layoutMode} layout keeps page ${index + 1} visually distinct.`,
