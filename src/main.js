@@ -20,7 +20,8 @@ const staticPages = {
     title: "Contact",
     body: [
       "Use this site as a conversation starter, a joke machine, or a curiosity trap.",
-      "For business or technical contact, wire this page to the repo's preferred support path before production launch.",
+      "fuckyou.site is a 3000 Studios project. For business, advertising, or technical contact, email 3000 Studios at mr.jwswain@gmail.com.",
+      "We read everything that lands in the inbox. Replies go out as fast as the nonsense schedule allows.",
     ],
   },
   "privacy-policy": {
@@ -307,12 +308,12 @@ function botMarkup(page) {
 
 function homeView() {
   const cards = rabbitHoles.map((hole) => `
-    <button class="rabbit-card" data-slug="${hole.slug}" style="--card-hue:${hole.theme.hue};--card-accent:${hole.theme.accent}">
+    <a class="rabbit-card" href="/hole/${hole.slug}" data-slug="${hole.slug}" style="--card-hue:${hole.theme.hue};--card-accent:${hole.theme.accent}">
       <span class="card-index">#${String(hole.id).padStart(3, "0")}</span>
       <strong>${hole.title}</strong>
       <span>${hole.hook}</span>
       <span class="card-footer">${hole.cta}</span>
-    </button>
+    </a>
   `).join("");
 
   return `
@@ -343,6 +344,7 @@ function homeView() {
 }
 
 function holeView(hole) {
+  const nextHole = rabbitHoles[hole.id % rabbitHoles.length];
   return `
     <section class="story-shell transition-${hole.transition} mode-${hole.layoutMode}">
       <a class="back-link" href="/">← back to the chaos grid</a>
@@ -380,6 +382,7 @@ function holeView(hole) {
         <div class="story-actions">
           <button class="primary-button" data-next>Open another cursed page</button>
           <button class="secondary-button" data-random>Surprise me harder</button>
+          <a class="secondary-button link-button" href="/hole/${nextHole.slug}">Next hole: ${nextHole.title}</a>
         </div>
       </div>
     </section>
@@ -471,7 +474,10 @@ function render() {
   document.body.dataset.page = route.type;
 
   app.querySelectorAll("[data-slug]").forEach((node) => {
-    node.addEventListener("click", () => navigate(`/hole/${node.dataset.slug}`));
+    node.addEventListener("click", (event) => {
+      event.preventDefault();
+      navigate(`/hole/${node.dataset.slug}`);
+    });
   });
 
   const next = app.querySelector("[data-next]");
