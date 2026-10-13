@@ -24,7 +24,7 @@ await writeFile(
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; media-src 'self'
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' https://pagead2.googlesyndication.com https://accounts.google.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google-analytics.com https://accounts.google.com; img-src 'self' data: https:; media-src 'self'; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://accounts.google.com
   Cache-Control: public, max-age=0, must-revalidate
 
 /src/*

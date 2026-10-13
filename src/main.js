@@ -380,6 +380,7 @@ function holeView(hole) {
         <div class="story-actions">
           <button class="primary-button" data-next>Open another cursed page</button>
           <button class="secondary-button" data-random>Surprise me harder</button>
+          <button class="secondary-button" data-share>Share this hole</button>
         </div>
       </div>
     </section>
@@ -479,6 +480,24 @@ function render() {
     next.addEventListener("click", () => {
       const nextIndex = (hole.id % pageCount) + 1;
       navigate(`/hole/hole-${String(nextIndex).padStart(3, "0")}`);
+    });
+  }
+
+  const share = app.querySelector("[data-share]");
+  if (share) {
+    share.addEventListener("click", async () => {
+      const shareData = { title: document.title, url: window.location.href };
+      if (navigator.share) {
+        try { await navigator.share(shareData); } catch { /* user dismissed */ }
+      } else if (navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(shareData.url);
+          share.textContent = "Link copied!";
+        } catch {
+          share.textContent = "Copy failed";
+        }
+        window.setTimeout(() => { share.textContent = "Share this hole"; }, 2000);
+      }
     });
   }
 
